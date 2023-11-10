@@ -27,6 +27,7 @@ exports.handler = async (event) => {
                 
                     const question = row[0];
                     const answers = row.slice(1);
+                    //array is slice from index one ommiting the question , shift() changes the original array by removing index one.
                     questions[question] = answers;
                 })
                 .on('end', async function () {
@@ -52,7 +53,7 @@ exports.handler = async (event) => {
                 });
         });
     }
-
+//future versions of this code will not contain the test functionality , workflows will be serperated.
 
     if (event.message == "get_question") {
         const reply = {
