@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+cconst AWS = require('aws-sdk');
 const fs = require('fs');
 
 /*Common use for the File System module:
@@ -28,7 +28,7 @@ function upload_csv_to_s3(filePath,s3bucketname,Key_name){
 
 exports.handler = async (event) => {
   
-  if(event.message ='upload_csv'){
+  if(event.message =='upload_csv'){
     
     const success = {
     statusCode: 200,
@@ -50,9 +50,9 @@ exports.handler = async (event) => {
     
   }
   
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify('Hello from Lambda!'),
+  const defaultResponse = {
+    statusCode: 404,
+    body: "Nothing was found , invalid request"
   };
-  return response;
+  return defaultResponse;
 };
