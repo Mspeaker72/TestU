@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         if (event.message === "start") {
             const S3params = {
                 Bucket: "testsystemstorage",
-                Key: "Test_Template.csv",
+                Key: event.file,
             };
 
             const data = await s3.getObject(S3params).promise();
