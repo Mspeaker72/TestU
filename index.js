@@ -1,62 +1,57 @@
-const { parse } = require('csv-parse');
-const AWS = require('aws-sdk');
+const fs = require('fs');
+
+/*Common use for the File System module:
+-Read files
+-Create files
+-Update files
+-Delete files
+-Rename files
+*/
+AWS.config.update({region:'eu-north-1'});
+const s3 = new AWS.S3();
+
+function upload_csv_to_s3(filePath,s3bucketname,Key_name){
+  
+  const fileContent = fs.readFileSync(filePath);
+  
+  const params = {
+        Bucket: s3bucketname,
+        Key: Key_name,
+        Body: fileContent,
+    };
+    
+    return s3.upload(params).promise();
+
+}
+
 
 exports.handler = async (event) => {
-    const dynamodb = new AWS.DynamoDB.DocumentClient();
-    const s3 = new AWS.S3();
-    const parser = parse({ delimiter: ',', from_line: 2 });
-
-    let questions = {}; // Use an object to store questions and answers
-
-    try {
-        if (event.message === "start") {
-            const S3params = {
-                Bucket: "testsystemstorage",
-                Key: event.file,
-            };
-
-            const data = await s3.getObject(S3params).promise();
-            const csvData = data.Body.toString('utf-8');
-
-            parser.write(csvData);
-            parser.end();
-
-            return new Promise((resolve, reject) => {
-                parser.on('readable', function () {
-                    let row;
-                    while ((row = parser.read())) {
-                        const question = row[0].trim(); // Trim leading and trailing whitespaces
-                        const answers = row.slice(1).map(answer => answer.trim()); // Trim each answer
-                        questions[question] = answers;
-                    }
-                });
-
-                parser.on('end', async function () {
-                    try {
-                        const promises = Object.entries(questions).map(([question, answers]) => {
-                            let params = {
-                                TableName: 'TestQuestions',
-                                Item: {
-                                    question,
-                                    answers,
-                                },
-                            };
-                            return dynamodb.put(params).promise();
-                        });
-
-                        await Promise.all(promises);
-                        resolve({ "message": "You have populated the DB" });
-                    } catch (error) {
-                        reject({ "error": "Error adding questions to DynamoDB", "details": error.message });
-                    }
-                });
-            });
-        }
-
-        // Handle other cases or return a default response
-        return { "message": "Not Found", "statusCode": 404 };
-    } catch (error) {
-        // Handle general errors
-        return { "error": "An error occurred", "details": error.message };
-    }
+  
+  if(event.message =='upload_csv'){
+    
+    const success = {
+    statusCode: 200,
+    body:"file has been uploaded to database",
+    };
+    
+     const failure = {
+    statusCode: 500,
+    body:"an error has occured during the upload process , please check format",
+    };
+    
+    upload_csv_to_s3(event.filepath,event.s3bucketname,event.templateName)
+    .then(success=> {
+      return success;
+    })
+    .catch(failure=>{
+      return failure
+    });
+    
+  }
+  
+  const defaultResponse = {
+    statusCode: 404,
+    body: "Nothing was found , invalid request"
+  };
+  return defaultResponse;
 };
