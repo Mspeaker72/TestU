@@ -32,7 +32,21 @@ for i in range(len(csv_to_string)):
         a4.append(csv_to_string[i+4])
 
 resquest = {q[0]:q[1:],a1[0]:a1[1:],a2[0]:a2[1:],a3[0]:a3[1:],a4[0]:a4[1:]}      
-print(resquest.get(q[0])[0])
+
+
+def headings(h1,h2,h3,h4,h5):
+    output_file = open("output.csv","w")
+    output_file.writelines(h1[0]+","+h2[0]+","+h3[0]+","+h4[0]+","+h5[0]+"\n")
+
+def rows(h1,h2,h3,h4,h5):
+    output_file = open("output.csv","a")
+    for i in range(1,len(h1)):
+        output_file.writelines(h1[i]+","+h2[i]+","+h3[i]+","+h4[i]+","+h5[i]+"\n")
+
+
+
+headings(q,a1,a2,a3,a4)
+rows(q,a1,a2,a3,a4)
 
 
 # num_headings= 5
